@@ -1,7 +1,8 @@
 #-------------
 #ui
 #-------------
-ui <- dashboardPagePlus(skin = "yellow-light",
+ui <- dashboardPagePlus(
+  skin = "yellow-light",
   enable_preloader = T,#加载
   loading_duration = 1,
   header = dashboardHeaderPlus(
@@ -91,7 +92,12 @@ server <- function(input, output, session) {
       write.csv(mtcars, con)
     }
   )
+  #--------验证之后才能进入
+  res_auth <- secure_server(
+    check_credentials = check_credentials(credentials,
+      passphrase = key_get("liripo")))
 }
-
+#验证后登录
+ui <- secure_app(ui)
 #------------------------------
 shinyApp(ui, server)
