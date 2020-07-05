@@ -15,8 +15,8 @@
 #dbDisconnect(con)
 #-------------------------
 #暂时不用了，使用sqllite生成的.sqlite文件,sqlite无需密码
-library(DBI)
-library(keyring)
-conn <- DBI::dbConnect(RSQLite::SQLite(), dbname = "database.sqlite")
-credentials <- read_db_decrypt(conn = conn, 
-  name = "credentials", passphrase = key_get("liripo"))
+#library(DBI)
+#library(keyring)
+#conn <- DBI::dbConnect(RSQLite::SQLite(), dbname = "database.sqlite")
+#credentials <- read_db_decrypt(conn = conn, 
+#  name = "credentials", passphrase = key_get("liripo"))

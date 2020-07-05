@@ -2,7 +2,7 @@
 #ui
 #-------------
 ui <- dashboardPagePlus(
-  skin = "yellow-light",
+  skin = "blue",
   enable_preloader = T,#加载
   loading_duration = 1,
   header = dashboardHeaderPlus(
@@ -14,7 +14,8 @@ ui <- dashboardPagePlus(
   sidebar = dashboardSidebar(
     sidebarMenu(
       menuItem("Search",tabName = "search",icon = icon("search")),
-      menuItem("File",tabName = "file",icon = icon("file"))
+      menuItem("File",tabName = "file",icon = icon("file")),
+      menuItem("R",tabName = "r",icon = icon("feather-alt"))
     )
   ),
   #-------------
@@ -23,6 +24,8 @@ ui <- dashboardPagePlus(
       tabItem(
         "search",
         fluidRow(
+          h1("点击搜索按钮一下",
+            a(href = "https://github.com/welai/glow-sans","by(未来荧黑字体)")),
           shinyWidgets::searchInput(inputId = "search",btnSearch = icon("search"),
                                   width = "30%"),
         ),
@@ -30,17 +33,18 @@ ui <- dashboardPagePlus(
           DT::DTOutput("search_out"),
         ),
         fluidRow(
-          echarts4rOutput("global_map")
+          echarts4rOutput("global_map") %>% withSpinner(),
         )
       ),
       tabItem(
         "file",
         fluidRow(
-          fileInput("file_input",label = "File input")
+          h1("file input"),
+          fileInput("file_input",label = "")
         ),
         fluidRow(
           boxPlus(
-            title = "file input and down",
+            title = "file download",
             closable = TRUE, 
             enable_label = TRUE,
             label_text = 1,
@@ -51,6 +55,24 @@ ui <- dashboardPagePlus(
             tableOutput("file_out"),
             downloadBttn("down_out")
           )
+        )
+      ),
+      tabItem("r",
+        h1("ggcor-teaching",class = "btn btn-primary"),
+        fluidRow(
+          column(6,
+            aceEditor("r-or", mode = "r", 
+              value = ggcor(),height = "400pt",
+              fontSize = 20,theme = "xcode")
+          ),
+          column(6,
+            gradientBox(
+              plotOutput("ggcor")
+            )
+          )
+        ),
+        fluidRow(
+          actionButton("eval", "Run"),
         )
       )
     )
@@ -77,6 +99,7 @@ server <- function(input, output, session) {
     })
   })
   output$global_map <- renderEcharts4r({
+    Sys.sleep(5)
     global_map(data = global)
   })
   output$file_out <- renderTable({
@@ -92,12 +115,22 @@ server <- function(input, output, session) {
       write.csv(mtcars, con)
     }
   )
+  ror <- aceAutocomplete("r-or")
+  output$ggcor <- renderPlot({
+    req(input$eval)
+    input$eval
+    eval(parse(text = isolate(input$`r-or`)))
+  })
   #--------验证之后才能进入
-  res_auth <- secure_server(
-    check_credentials = check_credentials(credentials,
-      passphrase = key_get("liripo")))
+  #res_auth <- secure_server(
+  #  check_credentials = check_credentials("database.sqlite",passphrase = key_get("liripo")))
 }
 #验证后登录
-ui <- secure_app(ui)
+#ui <- secure_app(ui,enable_admin = T)
 #------------------------------
+ui <- shinyUI(fluidPage(
+  tags$link(rel = "stylesheet",href = "mycss.css"),
+  ui %>% div(class = "font")
+))
+
 shinyApp(ui, server)
