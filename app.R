@@ -115,7 +115,16 @@ server <- function(input, output, session) {
       write.csv(mtcars, con)
     }
   )
+  #--------------------
+  observe({
+    comletes <- c("text","static","rlang")
+    updateAceEditor(session, "r-or", autoComplete = "live",
+      autoCompleters = comletes)
+  })
   ror <- aceAutocomplete("r-or")
+  observe(
+    ror$resume()
+  )
   output$ggcor <- renderPlot({
     req(input$eval)
     input$eval
