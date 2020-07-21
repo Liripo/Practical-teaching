@@ -15,7 +15,8 @@ ui <- dashboardPagePlus(
     sidebarMenu(
       menuItem("Search",tabName = "search",icon = icon("search")),
       menuItem("File",tabName = "file",icon = icon("file")),
-      menuItem("R",tabName = "r",icon = icon("feather-alt"))
+      menuItem("R",tabName = "r",icon = icon("feather-alt")),
+      menuItem("pi",tabName = "pi",icon = icon("crow"))
     )
   ),
   #-------------
@@ -74,6 +75,25 @@ ui <- dashboardPagePlus(
         fluidRow(
           actionButton("eval", "Run"),
         )
+      ),
+      tabItem("pi",
+        tabsetPanel(
+          tabPanel(title = "说明",
+            withMathJax(includeMarkdown("./rmd/蒙特卡洛计算Π.md"))  
+          ),
+          tabPanel(title = "run",
+              fluidRow(
+                column(6,sliderInput("run_number", "Number of sample:",
+                  min = 100, max = 10000, value = 1000)),
+                column(6,actionButton("run",label = "Run"))
+              ),
+              fluidRow(column(6,
+                imageOutput("run1",height = "300px")),
+              column(6,
+                imageOutput("run2",height = "300px"))
+            )
+          )
+        )
       )
     )
   ),
@@ -129,6 +149,17 @@ server <- function(input, output, session) {
     req(input$eval)
     input$eval
     eval(parse(text = isolate(input$`r-or`)))
+  })
+  #------------------
+  observeEvent(input$run,{
+    pidata <- reactive({n <- pi_data(input$run_number)})
+    output$run1 <- renderImage({
+      a <- make_run1(pidata());
+      path <- a %>% fs::path();
+      list(src = path)},deleteFile = F)
+    output$run2 <- renderImage({b <- make_run2(pidata());
+    path <- b %>% fs::path()
+    list(src = path)},deleteFile = F)
   })
   #--------验证之后才能进入
   #res_auth <- secure_server(
