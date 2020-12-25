@@ -15,7 +15,7 @@ library(glue)
 library(shinyAce)
 #library(reactlog) #响应图调试
 #-------------------------
-#covid_data <- nCov2019::get_nCov2019(lang = "en")
+covid_data <- nCov2019::get_nCov2019(lang = "en")
 chinese <- covid_data[]
 global <- covid_data$global
 global_map <- function(data){
